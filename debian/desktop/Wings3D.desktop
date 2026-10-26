@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Wings 3D
+GenericName=Wings 3D
+Exec=/home/user/bin/wings3d-virgl.sh
+Terminal=false
+Icon=/usr/share/icons/wings3d.xpm
+Type=Application/usr/share/icons/wings3d.xpm
+Categories=Application;Graphics;
+Comment=3D modeling tool
+StartupNotify=false
