@@ -76,7 +76,7 @@ git clone https://github.com/souzamonteiro/maialinux-android.git
 Inside **Termux** (outside Debian), run the preparation script:
 
 ```sh
-cd ~/maialinux-android/termux/scripts
+cd ./maialinux-android/termux/scripts
 ./setup.sh
 ```
 
@@ -93,7 +93,7 @@ proot-distro login debian --shared-tmp
 Inside the Debian container, execute the main installer:
 
 ```sh
-cd /home/roberto/projects/maialinux-android/debian/scripts # or ~/maialinux-android/debian/scripts
+cd ./maialinux-android/debian/scripts
 ./setup.sh
 ```
 
