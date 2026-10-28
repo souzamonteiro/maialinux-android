@@ -2,11 +2,11 @@
 Encoding=UTF-8
 Version=1.0
 Name=Wings 3D
-GenericName=Wings 3D
-Exec=/home/user/bin/wings3d-virgl.sh
+GenericName=3D Modeler
+Exec=/usr/local/bin/wings3d-virgl.sh
 Terminal=false
-Icon=/usr/share/icons/wings3d.xpm
-Type=Application/usr/share/icons/wings3d.xpm
-Categories=Application;Graphics;
-Comment=3D modeling tool
+Icon=wings3d
+Type=Application
+Categories=Application;Graphics;3DGraphics;
+Comment=3D modeling tool with VirGL acceleration
 StartupNotify=false

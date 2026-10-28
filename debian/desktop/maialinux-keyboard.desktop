@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Virtual Keyboard (Toggle)
+Name[pt_BR]=Teclado Virtual (Alternar)
+Comment=Show or hide on-screen virtual keyboard
+Exec=/usr/local/bin/maialinux-keyboard-toggle
+Icon=input-keyboard
+Terminal=false
+Categories=Utility;Accessibility;
+

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# maialinux-keyboard-toggle
+# Toggles the virtual keyboard (onboard or matchbox-keyboard) on/off in MaiaLinux on Android / Termux-X11.
+
+set -u
+
+# Debounce repeated rapid presses (e.g. key repeat or multi-touch double tap)
+LOCK_FILE="/tmp/maialinux-keyboard-toggle.last"
+now_ms="$(date +%s%3N 2>/dev/null || echo 0)"
+if [[ -f "$LOCK_FILE" ]]; then
+    last_ms="$(cat "$LOCK_FILE" 2>/dev/null || echo 0)"
+    if [[ "$now_ms" =~ ^[0-9]+$ ]] && [[ "$last_ms" =~ ^[0-9]+$ ]]; then
+        if (( now_ms - last_ms < 450 )); then
+            exit 0
+        fi
+    fi
+fi
+echo "$now_ms" > "$LOCK_FILE" 2>/dev/null || true
+
+export DISPLAY="${DISPLAY:-:0}"
+
+# 1. If matchbox-keyboard is running, toggle it off
+if pgrep -x "matchbox-keyboa" >/dev/null 2>&1 || pgrep -f "matchbox-keyboard" >/dev/null 2>&1; then
+    pkill -f "matchbox-keyboard" >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# 2. If onboard is running, toggle visibility or toggle off
+if pgrep -x "onboard" >/dev/null 2>&1; then
+    if command -v dbus-send >/dev/null 2>&1; then
+        if dbus-send --type=method_call --dest=org.onboard.Onboard /org/onboard/Onboard/Keyboard org.onboard.Onboard.Keyboard.ToggleVisible >/dev/null 2>&1; then
+            exit 0
+        fi
+    fi
+    pkill -x "onboard" >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# 3. Launch keyboard (prefer onboard for tablets if installed, fallback to matchbox-keyboard)
+if command -v onboard >/dev/null 2>&1; then
+    onboard >/dev/null 2>&1 &
+    exit 0
+elif command -v matchbox-keyboard >/dev/null 2>&1; then
+    # Custom MaiaLinux layout if present
+    if [[ -f "${HOME}/.matchbox/keyboard.xml" ]]; then
+        export MB_KBD_CONFIG="${HOME}/.matchbox/keyboard.xml"
+    elif [[ -f "/usr/local/share/maialinux/keyboard.xml" ]]; then
+        export MB_KBD_CONFIG="/usr/local/share/maialinux/keyboard.xml"
+    fi
+
+    # Detect screen resolution to dock at bottom
+    X_RES="$(xrandr 2>/dev/null | grep '\*' | awk '{print $1}' | head -n1)"
+    SCREEN_W="${X_RES%x*}"
+    SCREEN_H="${X_RES#*x}"
+
+    if [[ -n "$SCREEN_W" && -n "$SCREEN_H" && "$SCREEN_W" =~ ^[0-9]+$ && "$SCREEN_H" =~ ^[0-9]+$ ]]; then
+        KBD_H=$(( SCREEN_H * 38 / 100 ))
+        KBD_Y=$(( SCREEN_H - KBD_H - 36 ))
+        matchbox-keyboard -geometry "${SCREEN_W}x${KBD_H}+0+${KBD_Y}" >/dev/null 2>&1 &
+    else
+        matchbox-keyboard >/dev/null 2>&1 &
+    fi
+    exit 0
+fi
+
+echo "Nenhum teclado virtual (onboard / matchbox-keyboard) encontrado." >&2
+exit 1
+

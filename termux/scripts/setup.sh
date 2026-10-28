@@ -1,27 +1,35 @@
-#/bin/sh
+#!/bin/sh
+# MaiaLinux-Android - Termux Environment Setup
+# Prepares Termux packages, audio, X11, and installs Debian 13 (Trixie) via PRoot Distro.
 
-# Upgrade system.
+set -e
+
+echo "=== [1/5] Atualizando Termux ==="
 pkg update -y
 pkg upgrade -y
 
-# Enable access to device storage.
+echo "=== [2/5] Configurando Armazenamento do Dispositivo ==="
 termux-setup-storage
 
-# Install Vim editor.
-pkg install vim -y
+echo "=== [3/5] Instalando Dependências do Termux (X11, Áudio, Aceleração) ==="
+pkg install -y vim curl wget git pulseaudio dbus
+pkg install -y x11-repo
+pkg install -y termux-x11-nightly
+pkg install -y angle-android virglrenderer-android proot-distro
 
-# Install the proot-distro script for easy management of chroot-based Linux distribution installations.
-pkg install proot-distro -y
+echo "=== [4/5] Instalando Container Debian no PRoot Distro ==="
+if proot-distro list | grep -q "debian (installed)"; then
+    echo "Debian já está instalado no PRoot Distro."
+else
+    echo "Instalando Debian via proot-distro..."
+    proot-distro install debian
+fi
 
-# Install X11 for Android.
-pkg install x11-repo -y
-pkg install termux-x11-nightly -y
-
-# Install Xfce4.
-pkg install xfce4 xfce4-goodies -y
-
-# Install audio support.
-pkg install pulseaudio -y
-
-# Install VirGL and Angle.
-pkg install angle-android virglrenderer-android -y
+echo "=== [5/5] Concluído! Próximo passo: ==="
+echo "Para concluir a instalação do MaiaLinux (Debian 13 + LXQt), execute:"
+echo "  proot-distro login debian --shared-tmp"
+echo "E dentro do Debian, execute:"
+echo "  cd /home/roberto/projects/maialinux-android/debian/scripts && ./setup.sh"
+echo ""
+echo "Depois inicie o ambiente gráfico com:"
+echo "  ./Debian.sh ou ./startdebian.sh"

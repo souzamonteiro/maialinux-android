@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Switch Wallpaper
+Name[pt_BR]=Alternar Papel de Parede
+Comment=Switch between MaiaLinux tablet wallpapers
+Exec=/usr/local/bin/maialinux-wallpaper.sh next
+Icon=preferences-desktop-wallpaper
+Terminal=false
+Categories=Settings;DesktopSettings;
+

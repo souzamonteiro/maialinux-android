@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Geany IDE
+Name[pt_BR]=Geany IDE
+Comment=Fast and lightweight IDE
+Exec=geany
+Icon=geany
+Terminal=false
+Categories=Development;IDE;
+

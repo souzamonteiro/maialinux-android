@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=QTerminal
+Name[pt_BR]=Terminal
+Comment=Lightweight terminal emulator
+Exec=qterminal
+Icon=utilities-terminal
+Terminal=false
+Categories=System;TerminalEmulator;
+
