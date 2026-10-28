@@ -64,7 +64,7 @@ Download links:
 No **Termux** (fora do Debian), execute o script de preparação:
 
 ```sh
-cd /home/roberto/projects/maialinux-android/termux/scripts
+cd ./maialinux-android/termux/scripts
 ./setup.sh
 ```
 
@@ -81,7 +81,7 @@ proot-distro login debian --shared-tmp
 Dentro do container Debian (como root), execute o instalador completo:
 
 ```sh
-cd /home/roberto/projects/maialinux-android/debian/scripts
+cd ./maialinux-android/debian/scripts
 ./setup.sh
 ```
 
@@ -102,7 +102,7 @@ O script `setup.sh`:
 Abra o aplicativo **Termux-X11** no Android. Em seguida, no **Termux**, execute:
 
 ```sh
-cd /home/roberto/projects/maialinux-android/termux/scripts
+cd ./maialinux-android/termux/scripts
 ./Debian.sh
 ```
 
