@@ -1,12 +1,12 @@
 # MaiaLinux-Android
 
-![alt text](<images/Pôster neon do MaiaLinux com Tux e Android.png>)
+![MaiaLinux Poster](images/Pôster%20neon%20do%20MaiaLinux%20com%20Tux%20e%20Android.png)
 
 **A Lightweight Linux Desktop for Android (Debian 13 Trixie + LXQt)**
 
-MaiaLinux-Android brings a Debian 13 (Trixie) desktop environment to compatible Android devices using Termux, PRoot and Termux-X11. It uses the lightweight **LXQt** desktop, retaining the MaiaLinux visual identity while allowing Linux applications to run alongside Android.
+MaiaLinux-Android brings a Debian 13 (Trixie) desktop environment to compatible Android devices using Termux, PRoot, and Termux-X11. It features the lightweight **LXQt** desktop environment, preserving the MaiaLinux visual identity while allowing Linux desktop applications to run alongside Android.
 
-> **Project status:** Under active development. MaiaLinux-Android now features Debian 13 (Trixie), LXQt with touch/tablet optimizations, a dedicated on-screen virtual keyboard with programming layouts, and tablet-optimized MaiaLinux wallpapers.
+> **Project status:** Under active development. MaiaLinux-Android now features Debian 13 (Trixie), LXQt with touch/tablet optimizations, a dedicated on-screen virtual keyboard with programming layouts, and tablet-optimized MaiaLinux widescreen wallpapers.
 
 ## Overview
 
@@ -17,8 +17,8 @@ MaiaLinux-Android brings a Debian 13 (Trixie) desktop environment to compatible 
 | Linux userspace | Debian 13 (Trixie), via PRoot Distro |
 | Desktop environment | LXQt (Openbox + PCManFM-Qt) |
 | Display server integration | Termux-X11 (X11) |
-| Audio | PulseAudio (TCP loopback) |
-| On-screen keyboard | `onboard` & `matchbox-keyboard` with custom MaiaLinux layout |
+| Audio | PulseAudio (TCP loopback bridge) |
+| On-screen virtual keyboard | `onboard` & `matchbox-keyboard` with custom MaiaLinux layout |
 | Wallpapers | Tablet-friendly widescreen neon & purple MaiaLinux wallpapers |
 | Optional graphics acceleration | VirGL / ANGLE, device-dependent |
 | Optional home-screen launcher | Termux:Widget |
@@ -48,7 +48,7 @@ PRoot provides a Linux filesystem and userspace without requiring root access. T
 - Termux and the matching Termux-X11 Android application.
 - A network connection for downloading Debian and packages.
 - A physical keyboard or the integrated on-screen virtual keyboard (`onboard` / `matchbox-keyboard`).
-- Optional: Termux:Widget for launching the desktop from the Android home screen.
+- Optional: Termux:Widget for launching the desktop directly from the Android home screen.
 
 Download links:
 - Termux: https://github.com/termux/termux-app
@@ -56,20 +56,14 @@ Download links:
 - Termux:Widget: https://github.com/termux/termux-widget
 
 ---
-## Instala o repositório git e baixa o repositório do projeto
 
-### Instala o utilitário git
+## Clone the Repository
 
-```
-pkg update -y
-pkg upgrade -y
+Inside **Termux**, install git and clone the project:
 
+```sh
+pkg update -y && pkg upgrade -y
 pkg install -y git
-```
-
-### Baixa o repositório do projeto
-
-```
 git clone https://github.com/souzamonteiro/maialinux-android.git
 ```
 
@@ -77,140 +71,140 @@ git clone https://github.com/souzamonteiro/maialinux-android.git
 
 ## 1. Automated Installation & Setup
 
-### Passo 1: Preparar o Termux e instalar Debian 13
+### Step 1: Prepare Termux and install Debian 13
 
-No **Termux** (fora do Debian), execute o script de preparação:
+Inside **Termux** (outside Debian), run the preparation script:
 
 ```sh
-cd ./maialinux-android/termux/scripts
+cd ~/maialinux-android/termux/scripts
 ./setup.sh
 ```
 
-Esse script atualiza os pacotes do Termux, instala o `proot-distro`, `x11-repo`, `termux-x11-nightly`, `pulseaudio`, aceleração gráfica (`virglrenderer-android`, `angle-android`) e baixa o Debian no PRoot Distro.
+This script updates Termux packages, installs `proot-distro`, `x11-repo`, `termux-x11-nightly`, `pulseaudio`, graphics acceleration packages (`virglrenderer-android`, `angle-android`), and downloads the Debian container via PRoot Distro.
 
-### Passo 2: Entrar no Debian e configurar o MaiaLinux (Debian 13 + LXQt)
+### Step 2: Enter Debian and configure MaiaLinux (Debian 13 + LXQt)
 
-Ainda no Termux, entre no container Debian:
+Still in Termux, log into the Debian container as root:
 
 ```sh
 proot-distro login debian --shared-tmp
 ```
 
-Dentro do container Debian (como root), execute o instalador completo:
+Inside the Debian container, execute the main installer:
 
 ```sh
-cd ./maialinux-android/debian/scripts
+cd /home/roberto/projects/maialinux-android/debian/scripts # or ~/maialinux-android/debian/scripts
 ./setup.sh
 ```
 
-O script `setup.sh`:
-1. Configura os repositórios oficiais do **Debian 13 (Trixie)** com componentes `main contrib non-free non-free-firmware`.
-2. Atualiza o sistema (`apt update && apt dist-upgrade`).
-3. Remove qualquer resquício legado do XFCE.
-4. Instala o ambiente **LXQt** (`lxqt-core`, `lxqt-panel`, `openbox`, `pcmanfm-qt`, `qterminal`), ícones `Papirus-Dark`, fontes DejaVu e Noto.
-5. Instala e configura os teclados virtuais (`onboard` e `matchbox-keyboard`).
-6. Configura o usuário padrão `maia` (e `user`) com permissões sudo sem senha e grupos de áudio/vídeo.
-7. Instala os papéis de parede para tablet em `/usr/share/wallpapers/maialinux/`.
-8. Aplica as configurações visuais do MaiaLinux (tema Dark Catppuccin, barra inferior de 36px com ícone de teclado, menu Maia e atalhos rápidos).
+The `setup.sh` script:
+1. Configures official **Debian 13 (Trixie)** APT repositories with `main contrib non-free non-free-firmware`.
+2. Upgrades the system (`apt update && apt dist-upgrade`).
+3. Removes legacy Xfce packages if present.
+4. Installs the **LXQt** desktop environment (`lxqt-core`, `lxqt-panel`, `openbox`, `pcmanfm-qt`, `qterminal`), `Papirus-Dark` icons, and DejaVu/Noto fonts.
+5. Installs and configures virtual on-screen keyboards (`onboard` and `matchbox-keyboard`).
+6. Sets up the default `maia` user (and `user` for compatibility) with passwordless `sudo` and audio/video groups.
+7. Installs tablet wallpapers into `/usr/share/wallpapers/maialinux/`.
+8. Applies the MaiaLinux visual profile (Dark Catppuccin theme, 36px touch-friendly panel with virtual keyboard launcher, Maia menu, and quicklaunch bar).
 
 ---
 
-## 2. Iniciar o MaiaLinux (LXQt)
+## 2. Launching MaiaLinux (LXQt)
 
-Abra o aplicativo **Termux-X11** no Android. Em seguida, no **Termux**, execute:
+Open the **Termux-X11** application on Android. Then, in **Termux**, run:
 
 ```sh
-cd ./maialinux-android/termux/scripts
+cd ~/maialinux-android/termux/scripts
 ./Debian.sh
 ```
 
-Ou se preferir via startup do Termux-X11:
+Or if you prefer launching directly via Termux-X11 startup:
 ```sh
 ./startlxqt.sh
 ```
 
-Para fechar todas as sessões e processos em segundo plano:
+To cleanly close all running sessions and background processes:
 ```sh
 ./killall.sh
 ```
 
 ---
 
-## 3. Recursos do Desktop MaiaLinux para Tablet
+## 3. Tablet Desktop Features
 
-### Teclado Virtual na Tela (On-Screen Keyboard)
-- O teclado virtual pode ser alternado a qualquer momento com um toque no ícone de teclado na **barra de tarefas (Quicklaunch)** ou na área de trabalho.
-- Se você tiver um teclado físico conectado, pode pressionar **F12** para exibir/ocultar o teclado.
-- Utiliza `onboard` (com suporte a toque, redimensionamento automático e predição) ou `matchbox-keyboard` com o layout de programação do MaiaLinux (4 linhas, 50 teclas, números dedicados e símbolos de programação acessíveis).
-- Script de controle: `/usr/local/bin/maialinux-keyboard-toggle`.
+### Virtual On-Screen Keyboard
+- The virtual keyboard can be toggled at any time by tapping the keyboard icon on the **Taskbar (Quicklaunch)** or on the Desktop.
+- If a physical keyboard is attached, press **F12** to show or hide the keyboard.
+- Automatically uses `onboard` (supporting multi-touch, auto-resize, and word suggestions) or `matchbox-keyboard` with the MaiaLinux programming layout (4 rows, 50 keys, dedicated numbers, and accessible programming symbols).
+- Helper toggle script: `/usr/local/bin/maialinux-keyboard-toggle`.
 
-### Papéis de Parede para Tablet
-Adicionados papéis de parede em alta resolução na pasta `images/`:
-1. **Paisagem Neon com Logo Maialinux** (`maialinux-tablet-neon.png`)
-2. **Paisagem Roxa com Logo MAIALINUX** (`maialinux-tablet-purple.png`)
-3. **Pôster neon do MaiaLinux com Tux e Android** (`maialinux-tablet-tux-android.png`)
+### High-Resolution Tablet Wallpapers
+Tablet-ready wallpapers are included in `images/`:
+1. **Neon Landscape with MaiaLinux Logo** (`maialinux-tablet-neon.png`)
+2. **Purple Landscape with MaiaLinux Logo** (`maialinux-tablet-purple.png`)
+3. **Neon Poster of MaiaLinux with Tux and Android** (`maialinux-tablet-tux-android.png`)
 
-Para alternar entre eles a qualquer momento:
-- Clique no ícone **Alternar Papel de Parede** na barra ou na Área de Trabalho.
-- Ou execute no terminal:
+To switch wallpapers at any time:
+- Click the **Switch Wallpaper** icon in the quicklaunch bar or on the Desktop.
+- Or run in the terminal:
   ```sh
   maialinux-wallpaper.sh next
   ```
 
 ---
 
-## 4. Opcional: Aceleração Gráfica 3D (VirGL / ANGLE)
+## 4. Optional: 3D Graphics Acceleration (VirGL / ANGLE)
 
-O script `Debian.sh` já inicializa o servidor `virgl_test_server_android` em segundo plano com ANGLE Vulkan.
-Dentro do Debian, aplicações com aceleração utilizam os scripts em `/usr/local/bin/`:
+The `Debian.sh` script automatically launches the `virgl_test_server_android` server in the background using ANGLE Vulkan.
+Inside Debian, hardware-accelerated application shortcuts are located in `/usr/local/bin/`:
 - `firefox-virgl.sh`
 - `wings3d-virgl.sh`
 
-Para testar a aceleração 3D dentro do Debian:
+To verify 3D acceleration inside Debian:
 ```sh
 GALLIUM_DRIVER=virpipe glxinfo -B
 ```
 
 ---
 
-## 5. Estrutura do Projeto
+## 5. Project Structure
 
 ```text
 maialinux-android/
 ├── android/
-│   └── scripts/            # Scripts ADB para controle de processos phantom no Android
+│   └── scripts/            # ADB helper scripts for Android phantom process management
 ├── debian/
-│   ├── bin/                # Utilitários (teclado virtual, alternador de papel de parede, virgl)
-│   ├── config/             # Configurações do LXQt, Openbox, PCManFM-Qt e Matchbox
-│   │   ├── keyboard/       # Layout de teclado de programação XML
-│   │   ├── lxqt/           # Tema, painel, sessão e pcmanfm-qt
-│   │   └── openbox/        # Regras de janelas, atalhos de toque e F12
-│   ├── desktop/            # Atalhos .desktop (Teclado, Papel de Parede, Terminal, IDE)
+│   ├── bin/                # Utilities (virtual keyboard toggle, wallpaper switcher, virgl scripts)
+│   ├── config/             # LXQt, Openbox, PCManFM-Qt, and Matchbox configurations
+│   │   ├── keyboard/       # MaiaLinux programming keyboard layout (XML)
+│   │   ├── lxqt/           # Dark Catppuccin theme, panel, session, and pcmanfm-qt configs
+│   │   └── openbox/        # Window rules, touch margins, and F12 keyboard keybind
+│   ├── desktop/            # Desktop entry shortcuts (Keyboard, Wallpaper, Terminal, IDE)
 │   ├── scripts/
-│   │   ├── setup.sh        # Instalador completo do Debian 13 + LXQt + MaiaLinux
-│   │   └── setup_wine.sh   # Configuração opcional de Box86/Box64 e Wine
-│   └── wallpapers/         # Papéis de parede instalados no sistema
-├── images/                 # Papéis de parede originais de alta resolução para tablet
+│   │   ├── setup.sh        # Complete Debian 13 + LXQt + MaiaLinux installer
+│   │   └── setup_wine.sh   # Optional Box86/Box64 and Wine configuration
+│   └── wallpapers/         # Installed system wallpapers
+├── images/                 # Original high-resolution tablet wallpapers
 ├── termux/
 │   └── scripts/
-│       ├── setup.sh        # Setup de pacotes Termux e criação do container
-│       ├── Debian.sh       # Inicializador completo (X11 + áudio + LXQt)
-│       ├── startlxqt.sh    # Inicializador LXQt
-│       ├── startdebian.sh  # Login direto no LXQt
-│       └── killall.sh      # Encerramento limpo de processos
+│       ├── setup.sh        # Termux package setup and Debian container installation
+│       ├── Debian.sh       # Complete launcher (Termux-X11 + audio + VirGL + LXQt)
+│       ├── startlxqt.sh    # Direct LXQt session launcher
+│       ├── startdebian.sh  # Direct login into Debian LXQt
+│       └── killall.sh      # Clean shutdown of all processes
 └── README.md
 ```
 
-## Solução de Problemas
+## Troubleshooting
 
-| Sintoma | Verificação inicial |
+| Symptom | Initial Check |
 | --- | --- |
-| Tela preta no Termux-X11 | Verifique se o app Termux-X11 está aberto em primeiro plano; certifique-se de que `DISPLAY=:0` está exportado |
-| LXQt não inicia | Certifique-se de ter rodado `debian/scripts/setup.sh` dentro do container Debian e que `dbus-x11` está instalado |
-| Teclado virtual não abre | Verifique se `onboard` ou `matchbox-keyboard` estão instalados (`sudo apt install onboard matchbox-keyboard`) |
-| Sem áudio | Verifique se o PulseAudio no Termux iniciou com o módulo TCP (`pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1"`) |
-| Processo fecha sozinho no Android | Desative a limitação de phantom processes do Android (`android/scripts/disable_phantom_process_killer.sh`) |
+| Black screen in Termux-X11 | Ensure Termux-X11 app is open in foreground; verify `DISPLAY=:0` is exported |
+| LXQt does not start | Ensure `debian/scripts/setup.sh` finished successfully and `dbus-x11` is installed |
+| Virtual keyboard does not open | Ensure `onboard` or `matchbox-keyboard` is installed (`sudo apt install onboard matchbox-keyboard`) |
+| No audio | Check if PulseAudio in Termux started with TCP protocol (`pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1"`) |
+| Process killed in background | Disable Android phantom process killer (`android/scripts/disable_phantom_process_killer.sh`) |
 
-## Licença
+## License
 
-Distribuído sob licença compatível com o projeto MaiaLinux e Apache 2.0.
+Distributed under terms compatible with the MaiaLinux project and the Apache License 2.0.

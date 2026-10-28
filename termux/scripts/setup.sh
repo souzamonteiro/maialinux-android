@@ -4,32 +4,32 @@
 
 set -e
 
-echo "=== [1/5] Atualizando Termux ==="
+echo "=== [1/5] Updating Termux Packages ==="
 pkg update -y
 pkg upgrade -y
 
-echo "=== [2/5] Configurando Armazenamento do Dispositivo ==="
+echo "=== [2/5] Setting Up Device Storage Access ==="
 termux-setup-storage
 
-echo "=== [3/5] Instalando Dependências do Termux (X11, Áudio, Aceleração) ==="
+echo "=== [3/5] Installing Termux Dependencies (X11, Audio, Acceleration) ==="
 pkg install -y vim curl wget git pulseaudio dbus
 pkg install -y x11-repo
 pkg install -y termux-x11-nightly
 pkg install -y angle-android virglrenderer-android proot-distro
 
-echo "=== [4/5] Instalando Container Debian no PRoot Distro ==="
+echo "=== [4/5] Installing Debian Container in PRoot Distro ==="
 if proot-distro list | grep -q "debian (installed)"; then
-    echo "Debian já está instalado no PRoot Distro."
+    echo "Debian is already installed in PRoot Distro."
 else
-    echo "Instalando Debian via proot-distro..."
+    echo "Installing Debian via proot-distro..."
     proot-distro install debian
 fi
 
-echo "=== [5/5] Concluído! Próximo passo: ==="
-echo "Para concluir a instalação do MaiaLinux (Debian 13 + LXQt), execute:"
+echo "=== [5/5] Done! Next steps: ==="
+echo "To complete the MaiaLinux (Debian 13 + LXQt) installation, run:"
 echo "  proot-distro login debian --shared-tmp"
-echo "E dentro do Debian, execute:"
-echo "  cd /home/roberto/projects/maialinux-android/debian/scripts && ./setup.sh"
+echo "And inside Debian, run:"
+echo "  cd ~/maialinux-android/debian/scripts && ./setup.sh"
 echo ""
-echo "Depois inicie o ambiente gráfico com:"
-echo "  ./Debian.sh ou ./startdebian.sh"
+echo "Then launch the graphical desktop with:"
+echo "  ./Debian.sh or ./startdebian.sh"

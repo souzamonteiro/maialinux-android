@@ -9,7 +9,7 @@ export DEBIAN_FRONTEND=noninteractive
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-echo "=== [1/7] Configurando Repositórios do Debian 13 (Trixie) ==="
+echo "=== [1/7] Configuring Debian 13 (Trixie) Repositories ==="
 cat << 'EOF' > /etc/apt/sources.list
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
 deb http://deb.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
@@ -19,11 +19,11 @@ EOF
 apt update -y
 apt dist-upgrade -y
 
-echo "=== [2/7] Removendo XFCE legado (se presente) ==="
+echo "=== [2/7] Removing legacy XFCE packages (if present) ==="
 apt remove --purge -y xfce4 xfce4-* xfwm4 lightdm 2>/dev/null || true
 apt autoremove --purge -y 2>/dev/null || true
 
-echo "=== [3/7] Instalando Ambiente LXQt, Teclado Virtual e Utilitários ==="
+echo "=== [3/7] Installing LXQt Desktop, Virtual Keyboard, and Utilities ==="
 apt install -y --no-install-recommends \
     lxqt-core \
     lxqt-panel \
@@ -58,24 +58,24 @@ apt install -y --no-install-recommends \
     file-roller \
     build-essential
 
-echo "=== [4/7] Configurando Localização, Fuso Horário e Usuários ==="
+echo "=== [4/7] Configuring Locales, Timezone, and User Accounts ==="
 ln -sf /usr/share/zoneinfo/America/Bahia /etc/localtime
 
-# Configurar locales pt_BR e en_US
+# Configure locales (pt_BR and en_US)
 sed -i -E 's/#[[:space:]]?(pt_BR.UTF-8[[:space:]]+UTF-8)/\1/g' /etc/locale.gen
 sed -i -E 's/#[[:space:]]?(en_US.UTF-8[[:space:]]+UTF-8)/\1/g' /etc/locale.gen
 locale-gen
 echo "LANG=pt_BR.UTF-8" > /etc/locale.conf
 echo "LANG=pt_BR.UTF-8" > /etc/default/locale
 
-# Senha de root padrão (para ambiente proot)
+# Default root password (for PRoot environment)
 echo "root:root" | chpasswd 2>/dev/null || true
 
-# Criar grupos necessários
+# Create required groups
 groupadd -f storage
 groupadd -f wheel
 
-# Configurar usuários (maia como principal do MaiaLinux, e user para retrocompatibilidade)
+# Configure users (maia as default MaiaLinux user, and user for backward compatibility)
 for TARGET_USER in maia user; do
     if ! id -u "$TARGET_USER" >/dev/null 2>&1; then
         useradd -m -g users -G audio,storage,sudo,wheel,video -s /bin/bash "$TARGET_USER"
@@ -86,7 +86,7 @@ for TARGET_USER in maia user; do
     mkdir -p "/home/${TARGET_USER}/Desktop" "/home/${TARGET_USER}/bin" "/home/${TARGET_USER}/projects"
 done
 
-# Permissão sudo sem senha para usuários do proot
+# Passwordless sudo for PRoot container users
 cat << 'EOF' > /etc/sudoers.d/maialinux
 %sudo ALL=(ALL:ALL) NOPASSWD: ALL
 maia ALL=(ALL:ALL) NOPASSWD: ALL
@@ -94,7 +94,7 @@ user ALL=(ALL:ALL) NOPASSWD: ALL
 EOF
 chmod 0440 /etc/sudoers.d/maialinux
 
-echo "=== [5/7] Instalando Papéis de Parede para Tablet ==="
+echo "=== [5/7] Installing Tablet Wallpapers ==="
 WP_DIR="/usr/share/wallpapers/maialinux"
 mkdir -p "$WP_DIR"
 
@@ -105,7 +105,7 @@ if [[ -d "${REPO_DIR}/images" ]]; then
     cp -f "${REPO_DIR}"/images/*.png "$WP_DIR/" 2>/dev/null || true
 fi
 
-# Garantir nomes padronizados e link simbólico para o papel de parede ativo
+# Ensure standardized names and active wallpaper symlink
 if [[ -f "$WP_DIR/Paisagem Neon com Logo Maialinux.png" && ! -f "$WP_DIR/maialinux-tablet-neon.png" ]]; then
     cp -f "$WP_DIR/Paisagem Neon com Logo Maialinux.png" "$WP_DIR/maialinux-tablet-neon.png"
 fi
@@ -118,15 +118,15 @@ fi
 
 ln -sf "$WP_DIR/maialinux-tablet-neon.png" "$WP_DIR/current.png" 2>/dev/null || true
 
-echo "=== [6/7] Instalando Utilitários e Atalhos Desktop ==="
-# Scripts executáveis
+echo "=== [6/7] Installing Utilities and Desktop Shortcuts ==="
+# Executable binaries
 if [[ -d "${REPO_DIR}/debian/bin" ]]; then
     cp -f "${REPO_DIR}"/debian/bin/* /usr/local/bin/
     chmod +x /usr/local/bin/*
     ln -sf /usr/local/bin/wings-virgl.sh /usr/local/bin/wings3d-virgl.sh 2>/dev/null || true
 fi
 
-# Atalhos .desktop para sistema e área de trabalho
+# Desktop shortcuts
 mkdir -p /usr/local/share/applications /etc/skel/Desktop
 if [[ -d "${REPO_DIR}/debian/desktop" ]]; then
     cp -f "${REPO_DIR}"/debian/desktop/*.desktop /usr/local/share/applications/
@@ -140,7 +140,7 @@ for TARGET_USER in maia user; do
     fi
 done
 
-echo "=== [7/7] Configurando Perfil Visual do LXQt (Dark / Tablet) ==="
+echo "=== [7/7] Applying LXQt Visual Theme (Dark Catppuccin / Tablet) ==="
 CFG_SRC="${REPO_DIR}/debian/config"
 SHARE_MAIA="/usr/local/share/maialinux"
 mkdir -p "$SHARE_MAIA"
@@ -149,7 +149,7 @@ if [[ -f "${CFG_SRC}/keyboard/keyboard.xml" ]]; then
     cp -f "${CFG_SRC}/keyboard/keyboard.xml" "${SHARE_MAIA}/keyboard.xml"
 fi
 
-# Instalar configurações no /etc/skel e nas contas dos usuários
+# Deploy configs to /etc/skel and user home directories
 for TARGET_DIR in /etc/skel /home/maia /home/user; do
     [[ -d "$TARGET_DIR" ]] || continue
     mkdir -p "${TARGET_DIR}/.config/lxqt" \
@@ -180,4 +180,4 @@ done
 chown -R maia:users /home/maia 2>/dev/null || true
 chown -R user:users /home/user 2>/dev/null || true
 
-echo "=== Configuração do MaiaLinux (Debian 13 + LXQt) Concluída com Sucesso! ==="
+echo "=== MaiaLinux (Debian 13 + LXQt) Setup Completed Successfully! ==="

@@ -63,6 +63,5 @@ elif command -v matchbox-keyboard >/dev/null 2>&1; then
     exit 0
 fi
 
-echo "Nenhum teclado virtual (onboard / matchbox-keyboard) encontrado." >&2
+echo "No virtual keyboard (onboard / matchbox-keyboard) found." >&2
 exit 1
-

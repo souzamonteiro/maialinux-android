@@ -79,8 +79,7 @@ if [[ -f "$CHOSEN_WP" ]]; then
         sed -i "s|^Wallpaper=.*|Wallpaper=${CHOSEN_WP}|" "$CONF_FILE" 2>/dev/null || true
     fi
 
-    echo "Papel de parede definido para: $(basename "$CHOSEN_WP")"
+    echo "Wallpaper set to: $(basename "$CHOSEN_WP")"
 else
-    echo "Aviso: Arquivo de papel de parede não encontrado: $CHOSEN_WP" >&2
+    echo "Warning: Wallpaper file not found: $CHOSEN_WP" >&2
 fi
-
