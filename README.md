@@ -56,6 +56,24 @@ Download links:
 - Termux:Widget: https://github.com/termux/termux-widget
 
 ---
+## Instala o repositório git e baixa o repositório do projeto
+
+### Instala o utilitário git
+
+```
+pkg update -y
+pkg upgrade -y
+
+pkg install -y git
+```
+
+### Baixa o repositório do projeto
+
+```
+git clone https://github.com/souzamonteiro/maialinux-android.git
+```
+
+---
 
 ## 1. Automated Installation & Setup
 
