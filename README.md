@@ -114,7 +114,7 @@ The `setup.sh` script:
 Open the **Termux-X11** application on Android. Then, in **Termux**, run:
 
 ```sh
-cd ~/maialinux-android/termux/scripts
+cd ./maialinux-android/termux/scripts
 ./Debian.sh
 ```
 
