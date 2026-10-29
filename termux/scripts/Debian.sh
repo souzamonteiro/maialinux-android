@@ -1,36 +1,56 @@
-#!/bin/sh
-# MaiaLinux-Android - Launch Full LXQt Desktop with Termux-X11 and PulseAudio
+
+#!/data/data/com.termux/files/usr/bin/sh
+# MaiaLinux Android - Debian 13 / LXQt / Termux-X11
 
 export DISPLAY=:0
-export XDG_RUNTIME_DIR=${TMPDIR}
+export XDG_RUNTIME_DIR="${TMPDIR}"
 
-# Launch the Termux-X11 Android app activity
-am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null || true
+# Launch Android X11 activity
+am start --user 0 \
+  -n com.termux.x11/com.termux.x11.MainActivity \
+  2>/dev/null || true
 
 sleep 2
 
-# Terminate previous instances to avoid busy ports
-killall -9 termux-x11 virgl_test_server_android pulseaudio 2>/dev/null || true
+# Stop previous graphics/audio services
+killall termux-x11 virgl_test_server_android \
+  pulseaudio 2>/dev/null || true
 
-# Start PulseAudio with TCP bridge for the Debian container
-pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1 2>/dev/null || true
-pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 2>/dev/null || true
+# Start PulseAudio
+pulseaudio --start \
+  --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" \
+  --exit-idle-time=-1 2>/dev/null || true
 
-# Start VirGL acceleration server (Vulkan / GL)
+# Start VirGL
 if command -v virgl_test_server_android >/dev/null 2>&1; then
     virgl_test_server_android --angle-vulkan &
-    # virgl_test_server_android --angle-gl &
-    # virgl_test_server_android &
 fi
 
-# Start X11 server
+# Start Termux-X11
 termux-x11 :0 -ac &
+sleep 2
 
-sleep 1
-
-# Select user (maia or user)
 LOGIN_USER="${MAIA_USER:-maia}"
 
-# Launch LXQt session inside Debian 13 (Trixie)
-proot-distro login debian --user "$LOGIN_USER" --shared-tmp --no-sysvipc -- bash -c \
-  "export DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1 QT_QPA_PLATFORMTHEME=lxqt XDG_CURRENT_DESKTOP=LXQt XDG_SESSION_TYPE=x11; dbus-launch --exit-with-session startlxqt"
+# Start Debian LXQt
+proot-distro login debian \
+  --user "$LOGIN_USER" \
+  --shared-tmp \
+  --no-sysvipc \
+  -- /bin/bash -c '
+    export DISPLAY=:0
+    export PULSE_SERVER=tcp:127.0.0.1
+    export QT_QPA_PLATFORMTHEME=lxqt
+    export XDG_CURRENT_DESKTOP=LXQt
+    export XDG_SESSION_TYPE=x11
+    export SHELL=/bin/bash
+
+    # Conservative Firefox rendering
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export GALLIUM_DRIVER=llvmpipe
+    export MOZ_X11_EGL=0
+    export MOZ_ENABLE_WAYLAND=0
+
+    # Start LXQt session
+    dbus-launch --exit-with-session startlxqt
+  '
