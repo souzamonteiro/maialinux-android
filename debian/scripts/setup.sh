@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MaiaLinux Android - Debian 13 Trixie / LXQt full setup
+# MaiaLinux Android v4 - Debian 13 Trixie / LXQt full setup
 # Run as root inside the Debian PRoot environment, from a cloned repository.
 set -Eeuo pipefail
 export DEBIAN_FRONTEND=noninteractive
@@ -142,6 +142,35 @@ exec firefox-esr "$@"
 EOF
 chmod 0755 /usr/local/bin/maialinux-keyboard /usr/local/bin/maialinux-firefox
 
+# Ensure a terminal launched by LXQt uses Bash even when SHELL was inherited as /bin/sh.
+cat > /usr/local/bin/maialinux-qterminal <<'EOF'
+#!/usr/bin/env bash
+export SHELL=/bin/bash
+exec /usr/bin/qterminal -e /bin/bash "$@"
+EOF
+chmod 0755 /usr/local/bin/maialinux-qterminal
+
+# Install XDG desktop overrides for the applications launched from the LXQt menu.
+# Desktop-file IDs in /usr/local/share/applications take precedence over /usr/share/applications.
+if [[ -f /usr/share/applications/firefox-esr.desktop ]]; then
+  sed -E 's@(^Exec=)(/usr/bin/)?firefox-esr@\1/usr/local/bin/maialinux-firefox@g' \
+    /usr/share/applications/firefox-esr.desktop \
+    > /usr/local/share/applications/firefox-esr.desktop
+fi
+if [[ -f /usr/share/applications/qterminal.desktop ]]; then
+  sed -E 's@(^Exec=)(/usr/bin/)?qterminal@\1/usr/local/bin/maialinux-qterminal@g' \
+    /usr/share/applications/qterminal.desktop \
+    > /usr/local/share/applications/qterminal.desktop
+fi
+# Update repository-provided launchers, too, without changing source files.
+find /usr/local/share/applications -maxdepth 1 -type f -name '*.desktop' -print0 | \
+  while IFS= read -r -d '' f; do
+    sed -i -E \
+      -e 's@(^Exec=)(/usr/bin/)?firefox-esr@\1/usr/local/bin/maialinux-firefox@' \
+      -e 's@(^Exec=)(/usr/bin/)?qterminal@\1/usr/local/bin/maialinux-qterminal@' \
+      "$f"
+  done
+
 log '[7/7] Applying repository LXQt / Openbox / Matchbox configuration'
 CFG_SRC="${REPO_DIR}/debian/config"
 SHARE_MAIA=/usr/local/share/maialinux
@@ -164,17 +193,56 @@ for target_dir in /etc/skel /home/maia /home/user; do
       "$target_dir/.config/pcmanfm-qt/lxqt/settings.conf"
   [[ ! -f "${CFG_SRC}/keyboard/keyboard.xml" ]] || \
     cp -f "${CFG_SRC}/keyboard/keyboard.xml" "$target_dir/.matchbox/keyboard.xml"
+
+  # QTerminal config: preserve existing settings and force Bash for new terminals.
+  install -d "$target_dir/.config/qterminal.org"
+  qt_cfg="$target_dir/.config/qterminal.org/qterminal.ini"
+  if [[ -f "$qt_cfg" ]]; then
+    sed -i -E '/^[[:space:]]*shell[[:space:]]*=/d' "$qt_cfg"
+  fi
+  printf '\n[General]\nshell=/bin/bash\n' >> "$qt_cfg"
+
+  # XDG autostart: launch the corrected keyboard, not the unconfigured binary.
+  install -d "$target_dir/.config/autostart" "$target_dir/.local/share/applications"
+  cat > "$target_dir/.config/autostart/maialinux-keyboard.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=MaiaLinux Virtual Keyboard
+Exec=/usr/local/bin/maialinux-keyboard
+OnlyShowIn=LXQt;
+X-LXQt-Need-Tray=false
+EOF
+  # Per-user desktop-file overrides also cover menus with user-local priorities.
+  for app in firefox-esr qterminal; do
+    if [[ -f "/usr/local/share/applications/${app}.desktop" ]]; then
+      cp -f "/usr/local/share/applications/${app}.desktop" \
+        "$target_dir/.local/share/applications/${app}.desktop"
+    fi
+  done
+  # Existing Desktop shortcuts may call old executables; update only Exec lines.
+  if [[ -d "$target_dir/Desktop" ]]; then
+    find "$target_dir/Desktop" -maxdepth 1 -type f -name '*.desktop' -print0 | \
+      while IFS= read -r -d '' f; do
+        sed -i -E \
+          -e 's@(^Exec=)(/usr/bin/)?firefox-esr@\1/usr/local/bin/maialinux-firefox@' \
+          -e 's@(^Exec=)(/usr/bin/)?qterminal@\1/usr/local/bin/maialinux-qterminal@' \
+          "$f"
+      done
+  fi
 done
 # Own only deployed configuration and Desktop; do not recursively chown user homes.
 for target_user in maia user; do
   chown -R "$target_user:users" "/home/${target_user}/.config/lxqt" \
     "/home/${target_user}/.config/openbox" \
     "/home/${target_user}/.config/pcmanfm-qt" \
-    "/home/${target_user}/.matchbox" "/home/${target_user}/Desktop"
+    "/home/${target_user}/.matchbox" "/home/${target_user}/Desktop" \
+    "/home/${target_user}/.config/autostart" "/home/${target_user}/.config/qterminal.org" \
+    "/home/${target_user}/.local/share/applications"
 done
 
 log 'MaiaLinux Android setup complete'
-echo 'Keyboard: maialinux-keyboard (DejaVu Sans, 14 pt)'
-echo 'Firefox:  maialinux-firefox (software GL fallback)'
+echo 'Keyboard: XDG autostart uses maialinux-keyboard (DejaVu Sans, 14 pt)'
+echo 'Firefox:  menu launcher uses maialinux-firefox (software GL fallback)'
+echo 'Terminal: LXQt menu uses maialinux-qterminal (Bash)'
 echo 'Desktop:  LXQt + Openbox; repository configs, shortcuts and wallpapers installed.'
 echo 'Note: start the LXQt session through the existing Termux-X11 launch script.'
